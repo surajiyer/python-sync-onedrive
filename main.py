@@ -10,6 +10,7 @@ import requests
 from typing import List
 import urllib.parse
 from watchgod import watch, DefaultWatcher, Change
+import yaml
 
 
 ENDPOINT = 'https://graph.microsoft.com/v1.0'
@@ -26,8 +27,7 @@ def get_logger():
 
 
 def authenticate(logger=None):
-	# redirect_uri = 'https://localhost:8000/'
-	CLIENT_ID = '74767b8f-4c6a-47d5-9e87-9dd8b2dde891'
+	CLIENT_ID = os.environ['CLIENT_ID']
 	AUTHORITY = f'https://login.microsoftonline.com/consumers/'
 	SCOPES = [
 		'Files.ReadWrite.All',
@@ -116,8 +116,8 @@ def upload_file(sources, path, small, access_token):
 	"""
 	Parameters
 	----------
-	sources : Dict[str, str]
-		Mapping from local file to remote OneDrive location
+	sources : Dict[str, Dict[str, Any]]
+		Mapping from local file path to remote OneDrive path
 
 	path : str
 		Path to file locally
@@ -156,15 +156,8 @@ def event_action(sources, access_token, logger=None):
 
 if __name__ == '__main__':
 	logger = get_logger()
+	with open('settings.yml', 'r') as f:
+		settings = yaml.safe_load(f)
+	os.environ['CLIENT_ID'] = settings['CLIENT_ID']
 	access_token = authenticate(logger)
-	sources = {
-		'C:/Users/iyers/OneDrive - VodafoneZiggo/KeePassDB.kdbx': {
-				'remote_path': 'Documents/KeePassDB.kdbx',
-				'small': True
-			},
-		# 'C:/Users/iyers/Desktop/1.txt': {
-		# 		'remote_path': 'Documents/1.txt',
-		# 		'small': True
-		# 	}
-	}
-	event_action(sources, access_token, logger)
+	event_action(settings['sources'], access_token, logger)

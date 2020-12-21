@@ -1,0 +1,8 @@
+CLIENT_ID: '<your-client-id>'
+sources:
+  'path/to/file1':
+    'remote_path': 'onedrive/path/to/file1'
+    'small': True
+  'path/to/file2':
+    'remote_path': 'onedrive/path/to/file2'
+    'small': True
