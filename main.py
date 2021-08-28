@@ -148,8 +148,18 @@ def event_action(sources, access_token, logger=None):
 		try:
 			result = upload_file(
 				sources, path, sources[path]['small'], access_token)
+			result = dict(result.json())
 			if logger:
-				logger.info(result.json())
+				logger.info(result)
+			if 'error' in result and\
+				result['error']['code'] == 'InvalidAuthenticationToken':
+				# if the token expired, re-authenticate and retry
+				access_token = authenticate(logger)
+				result = upload_file(
+					sources, path, sources[path]['small'], access_token)
+				result = dict(result.json())
+				if logger:
+					logger.info(result)
 		except Exception as e:
 			logger.error(e)
 
